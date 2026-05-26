@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: bronze
+    database: claims_warehouse
+    schema: bronze
+    tables:
+      - name: beneficiary_summary
+        description: "Raw CMS SynPUF beneficiary summary records loaded into Bronze."
+      - name: inpatient_claims
+        description: "Raw CMS SynPUF inpatient claims loaded into Bronze."
+      - name: outpatient_claims
+        description: "Raw CMS SynPUF outpatient claims loaded into Bronze."

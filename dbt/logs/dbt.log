@@ -1,0 +1,89 @@
+[0m15:04:22.375184 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018603881160>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018606CB39E0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018607563020>]}
+
+
+============================== 15:04:22.409031 | d309ba21-4348-470a-b7a5-51a3cf988c65 ==============================
+[0m15:04:22.409031 [info ] [MainThread]: Running with dbt=1.11.11
+[0m15:04:22.411037 [debug] [MainThread]: running dbt with arguments {'static_parser': 'True', 'no_print': 'None', 'version_check': 'True', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'printer_width': '80', 'write_json': 'True', 'empty': 'None', 'log_cache_events': 'False', 'introspect': 'True', 'cache_selected_only': 'False', 'fail_fast': 'False', 'debug': 'False', 'log_format': 'default', 'partial_parse': 'True', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'warn_error': 'None', 'profiles_dir': 'C:\\Users\\Vedant\\.dbt', 'indirect_selection': 'eager', 'invocation_command': 'dbt init healthcare_claims', 'use_colors': 'True', 'use_experimental_parser': 'False', 'log_path': 'logs'}
+[0m15:04:22.436383 [info ] [MainThread]: Creating dbt configuration folder at C:\Users\Vedant\.dbt
+[0m15:04:22.436383 [debug] [MainThread]: Starter project path: D:\healthcare-claims-data-platform\.venv\Lib\site-packages\dbt\include\starter_project
+[0m15:04:22.482030 [info ] [MainThread]: 
+Your new dbt project "healthcare_claims" was created!
+
+For more information on how to configure the profiles.yml file,
+please consult the dbt documentation here:
+
+  https://docs.getdbt.com/docs/configure-your-profile
+
+One more thing:
+
+Need help? Don't hesitate to reach out to us via GitHub issues or on Slack:
+
+  https://community.getdbt.com/
+
+Happy modeling!
+
+[0m15:04:22.482030 [info ] [MainThread]: Setting up your profile.
+[0m15:07:33.757305 [error] [MainThread]: Encountered an error:
+
+[0m15:07:33.760322 [error] [MainThread]: Traceback (most recent call last):
+  File "D:\healthcare-claims-data-platform\.venv\Lib\site-packages\dbt\cli\requires.py", line 182, in wrapper
+    result, success = func(*args, **kwargs)
+                      ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\healthcare-claims-data-platform\.venv\Lib\site-packages\dbt\cli\requires.py", line 128, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\healthcare-claims-data-platform\.venv\Lib\site-packages\dbt\cli\main.py", line 488, in init
+    results = task.run()
+              ^^^^^^^^^^
+  File "D:\healthcare-claims-data-platform\.venv\Lib\site-packages\dbt\task\init.py", line 346, in run
+    self.setup_profile(profile_name)
+  File "D:\healthcare-claims-data-platform\.venv\Lib\site-packages\dbt\task\init.py", line 262, in setup_profile
+    self.create_profile_from_target(adapter, profile_name=profile_name)
+  File "D:\healthcare-claims-data-platform\.venv\Lib\site-packages\dbt\task\init.py", line 179, in create_profile_from_target
+    self.create_profile_from_profile_template(profile_template, profile_name)
+  File "D:\healthcare-claims-data-platform\.venv\Lib\site-packages\dbt\task\init.py", line 163, in create_profile_from_profile_template
+    target = self.generate_target_from_input(prompts, initial_target)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\healthcare-claims-data-platform\.venv\Lib\site-packages\dbt\task\init.py", line 129, in generate_target_from_input
+    target[key] = click.prompt(
+                  ^^^^^^^^^^^^^
+  File "D:\healthcare-claims-data-platform\.venv\Lib\site-packages\click\termui.py", line 218, in prompt
+    value = prompt_func(prompt)
+            ^^^^^^^^^^^^^^^^^^^
+  File "D:\healthcare-claims-data-platform\.venv\Lib\site-packages\click\termui.py", line 201, in prompt_func
+    raise Abort() from None
+click.exceptions.Abort
+
+[0m15:07:33.760322 [debug] [MainThread]: Command `dbt init` failed at 15:07:33.760322 after 191.72 seconds
+[0m15:07:33.760322 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018606EEAC60>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000186089D4C80>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018608A51640>]}
+[0m15:07:33.760322 [debug] [MainThread]: Flushing usage events
+[0m15:07:34.278785 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m15:08:13.973106 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021FD243ECF0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021FD2A3CA40>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021FD55EE600>]}
+
+
+============================== 15:08:13.973106 | cd1610f9-6c19-4ac8-86bd-cb47637472d0 ==============================
+[0m15:08:13.973106 [info ] [MainThread]: Running with dbt=1.11.11
+[0m15:08:13.980471 [debug] [MainThread]: running dbt with arguments {'version_check': 'True', 'no_print': 'None', 'static_parser': 'True', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'printer_width': '80', 'write_json': 'True', 'empty': 'None', 'log_cache_events': 'False', 'introspect': 'True', 'cache_selected_only': 'False', 'log_format': 'default', 'debug': 'False', 'fail_fast': 'False', 'partial_parse': 'True', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'warn_error': 'None', 'profiles_dir': 'C:\\Users\\Vedant\\.dbt', 'indirect_selection': 'eager', 'invocation_command': 'dbt init healthcare_claims', 'use_colors': 'True', 'use_experimental_parser': 'False', 'log_path': 'logs'}
+[0m15:08:14.006275 [debug] [MainThread]: Starter project path: D:\healthcare-claims-data-platform\.venv\Lib\site-packages\dbt\include\starter_project
+[0m15:08:14.027232 [info ] [MainThread]: 
+Your new dbt project "healthcare_claims" was created!
+
+For more information on how to configure the profiles.yml file,
+please consult the dbt documentation here:
+
+  https://docs.getdbt.com/docs/configure-your-profile
+
+One more thing:
+
+Need help? Don't hesitate to reach out to us via GitHub issues or on Slack:
+
+  https://community.getdbt.com/
+
+Happy modeling!
+
+[0m15:08:14.027232 [info ] [MainThread]: Setting up your profile.
+[0m15:10:32.883586 [info ] [MainThread]: Profile healthcare_claims written to C:\Users\Vedant\.dbt\profiles.yml using target's profile_template.yml and your supplied values. Run 'dbt debug' to validate the connection.
+[0m15:10:32.886303 [debug] [MainThread]: Command `dbt init` succeeded at 15:10:32.885772 after 139.21 seconds
+[0m15:10:32.886862 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021FD57F1D60>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021FD50EE780>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000021FD50EC740>]}
+[0m15:10:32.887420 [debug] [MainThread]: Flushing usage events
+[0m15:10:33.425624 [debug] [MainThread]: An error was encountered while trying to flush usage events

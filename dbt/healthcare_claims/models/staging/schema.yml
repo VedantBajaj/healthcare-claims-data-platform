@@ -1,0 +1,107 @@
+version: 2
+
+models:
+  - name: stg_beneficiary_summary
+    description: "Cleaned staging view for CMS SynPUF beneficiary summary data."
+    columns:
+      - name: beneficiary_id
+        description: "Synthetic CMS beneficiary ID."
+        tests:
+          - not_null
+
+      - name: source_year
+        description: "Year extracted from the source beneficiary summary file."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [2008, 2009, 2010]
+
+      - name: birth_date
+        description: "Beneficiary birth date."
+
+      - name: sex_code
+        description: "Raw CMS beneficiary sex code."
+
+      - name: race_code
+        description: "Raw CMS beneficiary race code."
+
+  - name: stg_inpatient_claims
+    description: "Cleaned staging view for CMS SynPUF inpatient claims."
+    columns:
+      - name: beneficiary_id
+        description: "Synthetic CMS beneficiary ID associated with the claim."
+        tests:
+          - not_null
+
+      - name: claim_id
+        description: "CMS claim ID."
+        tests:
+          - not_null
+
+      - name: claim_segment
+        description: "Claim segment number."
+
+      - name: claim_type
+        description: "Claim type assigned by the staging model."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["inpatient"]
+
+      - name: claim_start_date
+        description: "Claim service start date."
+        tests:
+          - not_null:
+              config:
+                severity: warn
+
+      - name: claim_end_date
+        description: "Claim service end date."
+
+      - name: provider_id
+        description: "CMS provider number."
+
+      - name: claim_payment_amount
+        description: "Medicare claim payment amount."
+
+  - name: stg_outpatient_claims
+    description: "Cleaned staging view for CMS SynPUF outpatient claims."
+    columns:
+      - name: beneficiary_id
+        description: "Synthetic CMS beneficiary ID associated with the claim."
+        tests:
+          - not_null
+
+      - name: claim_id
+        description: "CMS claim ID."
+        tests:
+          - not_null
+
+      - name: claim_segment
+        description: "Claim segment number."
+
+      - name: claim_type
+        description: "Claim type assigned by the staging model."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["outpatient"]
+
+      - name: claim_start_date
+        description: "Claim service start date."
+        tests:
+          - not_null:
+              config:
+                severity: warn
+
+      - name: claim_end_date
+        description: "Claim service end date."
+
+      - name: provider_id
+        description: "CMS provider number."
+
+      - name: claim_payment_amount
+        description: "Medicare claim payment amount."

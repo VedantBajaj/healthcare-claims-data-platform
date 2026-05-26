@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: silver_beneficiaries
+    description: "One cleaned latest-year record per CMS SynPUF beneficiary."
+    columns:
+      - name: beneficiary_id
+        description: "Synthetic CMS beneficiary ID."
+        tests:
+          - not_null
+          - unique
+
+      - name: birth_date
+        description: "Beneficiary birth date."
+
+      - name: latest_source_year
+        description: "Latest source year retained for the beneficiary."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [2008, 2009, 2010]
+
+      - name: sex_code
+        description: "Raw CMS sex code."
+
+      - name: race_code
+        description: "Raw CMS race code."
+
+  - name: silver_claims
+    description: "Unified Silver claims table combining inpatient and outpatient CMS SynPUF claims."
+    columns:
+      - name: claim_sk
+        description: "Surrogate key generated from claim ID, segment, claim type, and beneficiary ID."
+        tests:
+          - not_null
+          - unique
+
+      - name: beneficiary_id
+        description: "Synthetic CMS beneficiary ID associated with the claim."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('silver_beneficiaries')
+                field: beneficiary_id
+
+      - name: claim_id
+        description: "CMS claim ID."
+        tests:
+          - not_null
+
+      - name: claim_type
+        description: "Claim type derived from source file."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["inpatient", "outpatient"]
+
+      - name: claim_start_date
+        description: "Claim service start date. Warning only because some CMS SynPUF rows are missing this value."
+        tests:
+          - not_null:
+              config:
+                severity: warn
+
+      - name: claim_payment_amount
+        description: "Medicare claim payment amount. Negative values may represent adjustments or reversals."

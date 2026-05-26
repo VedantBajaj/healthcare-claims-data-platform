@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: healthcare_claims_postgres
+    environment:
+      POSTGRES_USER: claims_user
+      POSTGRES_PASSWORD: claims_password
+      POSTGRES_DB: claims_warehouse
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./warehouse/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U claims_user -d claims_warehouse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
