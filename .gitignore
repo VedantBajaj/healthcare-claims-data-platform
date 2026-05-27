@@ -18,3 +18,5 @@ __pycache__/
 .DS_Store
 
 airflow/logs/
+
+dbt/healthcare_claims/.user.yml
