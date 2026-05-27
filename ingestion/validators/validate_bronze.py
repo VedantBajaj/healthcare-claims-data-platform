@@ -1,7 +1,14 @@
 import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
+import logging
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+)
+
+logger = logging.getLogger(__name__)
 
 def get_engine():
     load_dotenv()
@@ -167,7 +174,7 @@ def run_check(engine, check: dict) -> dict:
 def main() -> None:
     engine = get_engine()
 
-    print("\nRunning Bronze data quality checks...\n")
+    logger.info("Starting Bronze data quality validation")
 
     results = []
 
@@ -175,20 +182,28 @@ def main() -> None:
         result = run_check(engine, check)
         results.append(result)
 
-        print(
+        log_message = (
             f"{result['status']:4} | "
             f"{result['check_name']:45} | "
+            f"severity={result['severity']} | "
             f"failed_count={result['failed_count']}"
         )
+
+        if result["status"] == "FAIL":
+            logger.error(log_message)
+        elif result["status"] == "WARN":
+            logger.warning(log_message)
+        else:
+            logger.info(log_message)
 
     failed_checks = [result for result in results if result["status"] == "FAIL"]
     warning_checks = [result for result in results if result["status"] == "WARN"]
 
-    print("\nValidation summary")
-    print(f"Total checks: {len(results)}")
-    print(f"Passed: {len([r for r in results if r['status'] == 'PASS'])}")
-    print(f"Warnings: {len(warning_checks)}")
-    print(f"Failed: {len(failed_checks)}")
+    logger.info("Validation summary")
+    logger.info("Total checks: %s", len(results))
+    logger.info("Passed: %s", len([r for r in results if r["status"] == "PASS"]))
+    logger.info("Warnings: %s", len(warning_checks))
+    logger.info("Failed: %s", len(failed_checks))
 
     if failed_checks:
         raise SystemExit("Bronze validation failed")
