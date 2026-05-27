@@ -1,0 +1,82 @@
+version: 2
+
+models:
+  - name: mart_claim_volume
+    description: "Claim volume summary by claim type."
+    columns:
+      - name: claim_type
+        description: "Claim type: inpatient or outpatient."
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: ["inpatient", "outpatient"]
+
+      - name: total_claims
+        description: "Total number of claims for the claim type."
+        tests:
+          - not_null
+
+      - name: unique_beneficiaries
+        description: "Number of unique beneficiaries for the claim type."
+        tests:
+          - not_null
+
+      - name: unique_providers
+        description: "Number of unique providers for the claim type."
+        tests:
+          - not_null
+
+  - name: mart_claim_payments
+    description: "Payment summary by claim type."
+    columns:
+      - name: claim_type
+        description: "Claim type: inpatient or outpatient."
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              arguments:
+                values: ["inpatient", "outpatient"]
+
+      - name: total_claims
+        description: "Total number of claims."
+        tests:
+          - not_null
+
+      - name: total_claim_payment_amount
+        description: "Total Medicare claim payment amount."
+        tests:
+          - not_null
+
+      - name: average_claim_payment_amount
+        description: "Average Medicare claim payment amount."
+        tests:
+          - not_null
+
+  - name: mart_provider_performance
+    description: "Provider-level claim volume and payment performance by claim type."
+    columns:
+      - name: provider_id
+        description: "CMS provider number."
+        tests:
+          - not_null
+
+      - name: claim_type
+        description: "Claim type: inpatient or outpatient."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["inpatient", "outpatient"]
+
+      - name: total_claims
+        description: "Total claims for the provider and claim type."
+        tests:
+          - not_null
+
+      - name: total_claim_payment_amount
+        description: "Total Medicare payment amount for the provider and claim type."
+        tests:
+          - not_null
