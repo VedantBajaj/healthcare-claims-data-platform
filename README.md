@@ -35,6 +35,17 @@ The raw CSV files are **not committed to GitHub** because they are large. After 
 
 ```text
 data/external/cms_synpuf/sample_1/
+```
+
+Expected local files:
+
+```text
+DE1_0_2008_Beneficiary_Summary_File_Sample_1.csv
+DE1_0_2009_Beneficiary_Summary_File_Sample_1.csv
+DE1_0_2010_Beneficiary_Summary_File_Sample_1.csv
+DE1_0_2008_to_2010_Inpatient_Claims_Sample_1.csv
+DE1_0_2008_to_2010_Outpatient_Claims_Sample_1.csv
+```
 
 ## Architecture
 
@@ -54,6 +65,7 @@ dbt Silver Tables
 dbt Gold Marts
         ↓
 Analytics / Dashboards
+```
 
 ### Data Flow
 
@@ -64,8 +76,6 @@ Analytics / Dashboards
 | Staging | Light cleanup and standardization | `stg_beneficiary_summary`, `stg_inpatient_claims`, `stg_outpatient_claims` |
 | Silver | Trusted standardized tables | `silver_beneficiaries`, `silver_claims` |
 | Gold | Analytics-ready marts | `mart_claim_volume`, `mart_claim_payments`, `mart_provider_performance` |
-
-
 
 ## Tech Stack
 
@@ -121,16 +131,17 @@ healthcare-claims-data-platform/
 ├── requirements.txt
 ├── .gitignore
 └── README.md
+```
 
-Main Components
-- warehouse/init.sql creates the Bronze schema and raw tables.
-- ingestion/loaders/load_bronze.py loads CMS CSV files into PostgreSQL.
-- ingestion/validators/validate_bronze.py runs Bronze-level validation checks.
-- dbt/healthcare_claims/models/staging/ contains cleaned staging views.
-- dbt/healthcare_claims/models/silver/ contains trusted Silver tables.
-- dbt/healthcare_claims/models/marts/ contains analytics-ready Gold marts.
-- dbt/healthcare_claims/tests/ contains custom dbt data tests.
+### Main Components
 
+- `warehouse/init.sql` creates the Bronze schema and raw tables.
+- `ingestion/loaders/load_bronze.py` loads CMS CSV files into PostgreSQL.
+- `ingestion/validators/validate_bronze.py` runs Bronze-level validation checks.
+- `dbt/healthcare_claims/models/staging/` contains cleaned staging views.
+- `dbt/healthcare_claims/models/silver/` contains trusted Silver tables.
+- `dbt/healthcare_claims/models/marts/` contains analytics-ready Gold marts.
+- `dbt/healthcare_claims/tests/` contains custom dbt data tests.
 
 ## Data Pipeline Layers
 
@@ -205,7 +216,6 @@ Gold marts support analysis of:
 - Missing claim dates
 - Negative payment adjustments
 
-
 ## Current Data Volumes
 
 | Layer / Table | Row Count |
@@ -233,7 +243,6 @@ Gold marts support analysis of:
 | inpatient | 66,773 | 639,260,180.00 | 9,573.63 | -8,000.00 | 57,000.00 |
 | outpatient | 790,790 | 224,524,710.00 | 283.92 | -100.00 | 3,300.00 |
 
-
 ## Data Quality and Testing
 
 This project includes validation at multiple stages of the pipeline.
@@ -244,40 +253,55 @@ Bronze validation is handled with a Python script:
 
 ```text
 ingestion/validators/validate_bronze.py
+```
 
 The Bronze validation checks include:
+
+```text
 - Source tables contain data
 - Beneficiary IDs are not null
 - Claim IDs are not null
 - Inpatient and outpatient claims connect to beneficiaries
 - Duplicate claim IDs are tracked as warnings
 - Negative payment amounts are tracked as warnings
+```
 
-dbt Tests
+Duplicate claim IDs and negative payment values are treated as warnings because raw healthcare claims data can contain claim segments, adjustments, reversals, and reprocessed payments.
+
+### dbt Tests
 
 dbt tests validate the Staging, Silver, and Gold layers.
 
 Current dbt tests include:
+
+```text
 - Not-null checks for important identifiers
 - Unique checks for surrogate keys
 - Accepted values for claim types
 - Relationship checks between claims and beneficiaries
 - Gold mart completeness checks
 - Custom uniqueness checks for provider and claim type combinations
+```
 
-Current Test Results
+### Current Test Results
 
 Staging tests:
 
+```text
 PASS=11 WARN=2 ERROR=0 TOTAL=13
+```
 
 Silver tests:
 
+```text
 PASS=11 WARN=1 ERROR=0 TOTAL=12
+```
 
 Gold mart tests:
 
+```text
 PASS=17 WARN=0 ERROR=0 TOTAL=17
+```
 
 ## dbt Documentation and Lineage
 
@@ -291,19 +315,27 @@ dbt Docs helps show how data flows from raw Bronze sources into Staging views, S
 cd dbt/healthcare_claims
 dbt docs generate
 dbt docs serve --port 8081
+```
 
 Then open:
 
+```text
 http://localhost:8081
-Example Lineage
+```
+
+### Example Lineage
+
+```text
 bronze.beneficiary_summary
         ↓
 stg_beneficiary_summary
         ↓
 silver_beneficiaries
+```
 
 Claims lineage:
 
+```text
 bronze.inpatient_claims
 bronze.outpatient_claims
         ↓
@@ -315,12 +347,9 @@ silver_claims
 mart_claim_volume
 mart_claim_payments
 mart_provider_performance
+```
 
 The lineage graph makes it easy to understand how each analytics table is built from the original CMS SynPUF source files.
-
-How to Run Locally
-
-Paste this after the dbt Documentation and Lineage section.
 
 ## How to Run Locally
 
@@ -329,60 +358,96 @@ Paste this after the dbt Documentation and Lineage section.
 ```bash
 git clone https://github.com/VedantBajaj/healthcare-claims-data-platform.git
 cd healthcare-claims-data-platform
+```
 
-2. Create and Activate a Virtual Environment
+### 2. Create and Activate a Virtual Environment
 
 For Windows PowerShell:
 
+```powershell
 python -m venv .venv
 .venv\Scripts\activate
+```
 
 Install dependencies:
 
+```powershell
 pip install -r requirements.txt
-3. Start PostgreSQL with Docker
+```
+
+### 3. Start PostgreSQL with Docker
+
+```powershell
 docker compose up -d
+```
 
 Confirm the container is running:
 
+```powershell
 docker ps
+```
 
 Expected container:
 
+```text
 healthcare_claims_postgres
-4. Add Environment Variables
+```
 
-Create a .env file in the project root:
+### 4. Add Environment Variables
 
+Create a `.env` file in the project root:
+
+```env
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_DB=claims_warehouse
 POSTGRES_USER=claims_user
 POSTGRES_PASSWORD=claims_password
-5. Add CMS SynPUF Files Locally
+```
+
+### 5. Add CMS SynPUF Files Locally
 
 Download the required CMS SynPUF Sample 1 files and place them under:
 
+```text
 data/external/cms_synpuf/sample_1/
+```
 
 The raw data files are ignored by Git and must be added locally before running ingestion.
 
-6. Load Bronze Data
+### 6. Load Bronze Data
+
+```powershell
 python ingestion/loaders/load_bronze.py
-7. Run Bronze Validation
+```
+
+### 7. Run Bronze Validation
+
+```powershell
 python ingestion/validators/validate_bronze.py
-8. Run dbt Models and Tests
+```
+
+### 8. Run dbt Models and Tests
+
+```powershell
 cd dbt/healthcare_claims
 dbt deps
 dbt run
 dbt test
-9. Generate and Serve dbt Docs
+```
+
+### 9. Generate and Serve dbt Docs
+
+```powershell
 dbt docs generate
 dbt docs serve --port 8081
+```
 
 Open:
 
+```text
 http://localhost:8081
+```
 
 ## Key Learnings
 
