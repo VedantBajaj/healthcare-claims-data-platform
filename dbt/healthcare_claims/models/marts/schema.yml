@@ -80,3 +80,62 @@ models:
         description: "Total Medicare payment amount for the provider and claim type."
         tests:
           - not_null
+  - name: mart_claims_by_source_system
+    description: "Claims summary grouped by source system and claim type."
+    columns:
+      - name: source_system
+        description: "Source system for the claim: CMS historical or daily synthetic."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cms_historical", "daily_synthetic"]
+
+      - name: claim_type
+        description: "Claim type: inpatient or outpatient."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["inpatient", "outpatient"]
+
+      - name: total_claims
+        description: "Total number of claims by source system and claim type."
+        tests:
+          - not_null
+
+      - name: total_claim_payment_amount
+        description: "Total Medicare claim payment amount by source system and claim type."
+        tests:
+          - not_null
+
+  - name: mart_daily_claim_feed_quality
+    description: "Daily feed quality mart comparing Bronze daily rows to trusted Silver daily rows."
+    columns:
+      - name: feed_date
+        description: "Date of the generated daily claims feed."
+        tests:
+          - not_null
+
+      - name: claim_type
+        description: "Claim type: inpatient or outpatient."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["inpatient", "outpatient"]
+
+      - name: bronze_daily_rows
+        description: "Number of daily records loaded into Bronze."
+        tests:
+          - not_null
+
+      - name: silver_daily_rows
+        description: "Number of daily records retained in Silver after quality filtering."
+        tests:
+          - not_null
+
+      - name: rejected_rows
+        description: "Number of rows rejected between Bronze and Silver."
+        tests:
+          - not_null
