@@ -16,3 +16,5 @@ dbt/healthcare_claims/logs/
 __pycache__/
 *.pyc
 .DS_Store
+
+airflow/logs/

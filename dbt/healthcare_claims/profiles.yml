@@ -1,0 +1,12 @@
+healthcare_claims:
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'postgres') }}"
+      port: "{{ env_var('POSTGRES_PORT', 5432) | int }}"
+      user: "{{ env_var('POSTGRES_USER', 'claims_user') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD', 'claims_password') }}"
+      dbname: "{{ env_var('POSTGRES_DB', 'claims_warehouse') }}"
+      schema: silver
+      threads: 4
+  target: dev
