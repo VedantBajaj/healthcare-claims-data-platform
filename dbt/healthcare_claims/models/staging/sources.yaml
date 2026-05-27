@@ -11,3 +11,7 @@ sources:
         description: "Raw CMS SynPUF inpatient claims loaded into Bronze."
       - name: outpatient_claims
         description: "Raw CMS SynPUF outpatient claims loaded into Bronze."
+      - name: daily_inpatient_claims
+        description: "Daily synthetic inpatient claims loaded into Bronze."
+      - name: daily_outpatient_claims
+        description: "Daily synthetic outpatient claims loaded into Bronze."
