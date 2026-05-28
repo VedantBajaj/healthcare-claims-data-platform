@@ -6,11 +6,11 @@ datasources:
     type: postgres
     access: proxy
     url: postgres:5432
-    database: claims_warehouse
     user: claims_user
     secureJsonData:
       password: claims_password
     jsonData:
+      database: claims_warehouse
       sslmode: disable
       postgresVersion: 1600
       timescaledb: false

@@ -1,0 +1,143 @@
+{
+  "uid": "healthcare-claims-overview",
+  "title": "Healthcare Claims Platform Overview",
+  "tags": ["healthcare", "claims", "postgres", "dbt"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Claim Volume by Claim Type",
+      "type": "table",
+      "datasource": {
+        "type": "postgres",
+        "uid": "healthcare_claims_postgres"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT claim_type, total_claims, unique_beneficiaries, unique_providers, claims_missing_start_date, negative_payment_claims FROM silver_marts.mart_claim_volume ORDER BY claim_type;"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Claim Payments by Claim Type",
+      "type": "table",
+      "datasource": {
+        "type": "postgres",
+        "uid": "healthcare_claims_postgres"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT claim_type, total_claims, total_claim_payment_amount, average_claim_payment_amount, minimum_claim_payment_amount, maximum_claim_payment_amount FROM silver_marts.mart_claim_payments ORDER BY claim_type;"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Claims by Source System",
+      "type": "table",
+      "datasource": {
+        "type": "postgres",
+        "uid": "healthcare_claims_postgres"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT source_system, claim_type, total_claims, unique_beneficiaries, unique_providers, total_claim_payment_amount, average_claim_payment_amount, claims_missing_start_date, negative_payment_claims FROM silver_marts.mart_claims_by_source_system ORDER BY source_system, claim_type;"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Daily Feed Quality",
+      "type": "table",
+      "datasource": {
+        "type": "postgres",
+        "uid": "healthcare_claims_postgres"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT feed_date, claim_type, bronze_daily_rows, silver_daily_rows, rejected_rows FROM silver_marts.mart_daily_claim_feed_quality ORDER BY feed_date DESC, claim_type;"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Top Providers by Total Claim Payment",
+      "type": "table",
+      "datasource": {
+        "type": "postgres",
+        "uid": "healthcare_claims_postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT provider_id, claim_type, total_claims, unique_beneficiaries, total_claim_payment_amount, average_claim_payment_amount, negative_payment_claims FROM silver_marts.mart_provider_performance ORDER BY total_claim_payment_amount DESC LIMIT 10;"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Pipeline Run Audit",
+      "type": "table",
+      "datasource": {
+        "type": "postgres",
+        "uid": "healthcare_claims_postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT pipeline_name, run_id, feed_date, files_processed, total_rows_loaded, successful_files, failed_files, run_status, duration_seconds, started_at, ended_at FROM silver_marts.mart_pipeline_run_audit ORDER BY started_at DESC LIMIT 10;"
+        }
+      ]
+    }
+  ]
+}
