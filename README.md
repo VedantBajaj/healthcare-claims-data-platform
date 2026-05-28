@@ -6,7 +6,24 @@ This project shows how healthcare claims data can move from raw CSV files into t
 
 ## Project Demo
 
-### dbt Lineage and Documentation
+<table>
+  <tr>
+    <td align="center">
+      <b>dbt Lineage & Docs</b><br>
+      <img src="docs/demo/dbt_docs_demo.gif" width="300">
+    </td>
+    <td align="center">
+      <b>Airflow Orchestration</b><br>
+      <img src="docs/demo/airflow_dag_demo.gif" width="300">
+    </td>
+    <td align="center">
+      <b>Grafana Dashboard</b><br>
+      <img src="docs/demo/grafana_dashboard_demo.gif" width="300">
+    </td>
+  </tr>
+</table>
+
+<!-- ### dbt Lineage and Documentation
 
 ![dbt Docs Demo](docs/demo/dbt_docs_demo.gif)
 
@@ -16,7 +33,7 @@ This project shows how healthcare claims data can move from raw CSV files into t
 
 ### Grafana Monitoring Dashboard
 
-![Grafana Dashboard Demo](docs/demo/grafana_dashboard_demo.gif)
+![Grafana Dashboard Demo](docs/demo/grafana_dashboard_demo.gif) -->
 
 
 ## What This Project Does
