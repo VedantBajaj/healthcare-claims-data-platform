@@ -35,6 +35,13 @@ models:
         tests:
           - not_null
           - unique
+      - name: source_system
+        description: "Indicates whether the claim came from CMS historical data or daily synthetic feed."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["cms_historical", "daily_synthetic"]
 
       - name: beneficiary_id
         description: "Synthetic CMS beneficiary ID associated with the claim."

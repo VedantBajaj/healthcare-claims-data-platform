@@ -3,6 +3,7 @@ select
     clm_id as claim_id,
     segment as claim_segment,
     'outpatient' as claim_type,
+    'cms_historical' as source_system,
 
     nullif(clm_from_dt, '')::date as claim_start_date,
     nullif(clm_thru_dt, '')::date as claim_end_date,
