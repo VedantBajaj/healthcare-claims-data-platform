@@ -9,33 +9,16 @@ from airflow.operators.python import PythonOperator
 
 
 PROJECT_DIR = "/opt/airflow/project"
-DATA_DIR = Path(f"{PROJECT_DIR}/data/external/cms_synpuf/sample_1")
+DAILY_CLAIMS_DIR = Path(f"{PROJECT_DIR}/data/landing/daily_claims")
 
 
-REQUIRED_FILES = [
-    "DE1_0_2008_Beneficiary_Summary_File_Sample_1.csv",
-    "DE1_0_2009_Beneficiary_Summary_File_Sample_1.csv",
-    "DE1_0_2010_Beneficiary_Summary_File_Sample_1.csv",
-    "DE1_0_2008_to_2010_Inpatient_Claims_Sample_1.csv",
-    "DE1_0_2008_to_2010_Outpatient_Claims_Sample_1.csv",
-]
-
-
-def check_source_files() -> None:
-    missing_files = []
-
-    for file_name in REQUIRED_FILES:
-        file_path = DATA_DIR / file_name
-
-        if not file_path.exists():
-            missing_files.append(str(file_path))
-
-    if missing_files:
+def check_daily_claims_directory() -> None:
+    if not DAILY_CLAIMS_DIR.exists():
         raise FileNotFoundError(
-            "Missing required CMS SynPUF files:\n" + "\n".join(missing_files)
+            f"Daily claims landing directory does not exist: {DAILY_CLAIMS_DIR}"
         )
 
-    print("All required CMS SynPUF source files are present.")
+    print(f"Daily claims landing directory exists: {DAILY_CLAIMS_DIR}")
 
 
 default_args = {
@@ -47,33 +30,38 @@ default_args = {
 
 
 with DAG(
-    dag_id="healthcare_claims_bronze_to_gold",
-    description="Orchestrates CMS SynPUF ingestion, validation, dbt transformations, and dbt tests.",
+    dag_id="healthcare_claims_daily_incremental",
+    description="Generates daily synthetic claims, loads daily Bronze tables, and refreshes dbt Silver/Gold models.",
     default_args=default_args,
     start_date=datetime(2026, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["healthcare", "claims", "dbt", "postgres"],
+    tags=["healthcare", "claims", "daily", "dbt", "postgres"],
 ) as dag:
 
-    check_files = PythonOperator(
-        task_id="check_source_files",
-        python_callable=check_source_files,
+    check_landing_directory = PythonOperator(
+        task_id="check_daily_claims_landing_directory",
+        python_callable=check_daily_claims_directory,
     )
 
-    load_bronze = BashOperator(
-    task_id="load_bronze_tables",
-    bash_command="""
-    echo "Starting Bronze ingestion task"
-    cd /opt/airflow/project
-    python ingestion/loaders/load_bronze.py
-    echo "Finished Bronze ingestion task"
-    """,
+    generate_daily_claims = BashOperator(
+        task_id="generate_daily_claims_feed",
+        bash_command="""
+        echo "Starting daily synthetic claims generation"
+        cd /opt/airflow/project
+        python ingestion/generators/generate_daily_claims_feed.py
+        echo "Finished daily synthetic claims generation"
+        """,
     )
 
-    validate_bronze = BashOperator(
-        task_id="validate_bronze_tables",
-        bash_command="cd /opt/airflow/project && python ingestion/validators/validate_bronze.py",
+    load_daily_bronze = BashOperator(
+        task_id="load_daily_bronze_tables",
+        bash_command="""
+        echo "Starting daily Bronze ingestion"
+        cd /opt/airflow/project
+        python ingestion/loaders/load_daily_bronze.py
+        echo "Finished daily Bronze ingestion"
+        """,
     )
 
     dbt_deps = BashOperator(
@@ -89,7 +77,7 @@ with DAG(
     dbt_run = BashOperator(
         task_id="dbt_run",
         bash_command="""
-        echo "Starting dbt run"
+        echo "Starting dbt run for daily incremental pipeline"
         cd /opt/airflow/project/dbt/healthcare_claims
         dbt run --profiles-dir .
         echo "Finished dbt run"
@@ -99,11 +87,18 @@ with DAG(
     dbt_test = BashOperator(
         task_id="dbt_test",
         bash_command="""
-        echo "Starting dbt test"
+        echo "Starting dbt test for daily incremental pipeline"
         cd /opt/airflow/project/dbt/healthcare_claims
         dbt test --profiles-dir .
         echo "Finished dbt test"
         """,
     )
 
-    check_files >> load_bronze >> validate_bronze >> dbt_deps >> dbt_run >> dbt_test
+    (
+        check_landing_directory
+        >> generate_daily_claims
+        >> load_daily_bronze
+        >> dbt_deps
+        >> dbt_run
+        >> dbt_test
+    )
