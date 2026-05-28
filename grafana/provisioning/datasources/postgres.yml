@@ -1,0 +1,16 @@
+apiVersion: 1
+
+datasources:
+  - name: Healthcare Claims Postgres
+    uid: healthcare_claims_postgres
+    type: postgres
+    access: proxy
+    url: postgres:5432
+    database: claims_warehouse
+    user: claims_user
+    secureJsonData:
+      password: claims_password
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1600
+      timescaledb: false

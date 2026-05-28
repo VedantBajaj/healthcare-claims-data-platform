@@ -111,7 +111,23 @@ services:
       - ./airflow/plugins:/opt/airflow/plugins
       - ./:/opt/airflow/project
     command: scheduler
+  grafana:
+    image: grafana/grafana:latest
+    container_name: healthcare_grafana
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
 
 volumes:
   postgres_data:
   airflow_postgres_data:
+  grafana_data:
