@@ -10,15 +10,15 @@ This project shows how healthcare claims data can move from raw CSV files into t
   <tr>
     <td align="center">
       <b>dbt Lineage & Docs</b><br>
-      <img src="docs/demo/dbt_docs_demo.gif" width="300">
+      <img src="docs/demo/dbt_docs_demo.gif" width="260">
     </td>
     <td align="center">
       <b>Airflow Orchestration</b><br>
-      <img src="docs/demo/airflow_dag_demo.gif" width="300">
+      <img src="docs/demo/airflow_dag_demo.gif" width="260">
     </td>
     <td align="center">
       <b>Grafana Dashboard</b><br>
-      <img src="docs/demo/grafana_dashboard_demo.gif" width="300">
+      <img src="docs/demo/grafana_dashboard_demo.gif" width="260">
     </td>
   </tr>
 </table>
