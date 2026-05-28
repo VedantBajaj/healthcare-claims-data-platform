@@ -1,0 +1,49 @@
+name: Healthcare Claims Platform CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  python-and-dbt-checks:
+    name: Python and dbt checks
+    runs-on: ubuntu-latest
+
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: claims_warehouse
+      POSTGRES_USER: claims_user
+      POSTGRES_PASSWORD: claims_password
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Check Python syntax
+        run: |
+          python -m compileall ingestion airflow
+
+      - name: Install dbt dependencies
+        working-directory: dbt/healthcare_claims
+        run: |
+          dbt deps
+
+      - name: Parse dbt project
+        working-directory: dbt/healthcare_claims
+        run: |
+          dbt parse --profiles-dir .
