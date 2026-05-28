@@ -15,3 +15,9 @@ sources:
         description: "Daily synthetic inpatient claims loaded into Bronze."
       - name: daily_outpatient_claims
         description: "Daily synthetic outpatient claims loaded into Bronze."
+  - name: audit
+    database: claims_warehouse
+    schema: audit
+    tables:
+      - name: pipeline_run_log
+        description: "Audit log table capturing pipeline execution metadata."
