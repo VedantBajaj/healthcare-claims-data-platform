@@ -64,6 +64,16 @@ with DAG(
         """,
     )
 
+    validate_daily_bronze = BashOperator(
+    task_id="validate_daily_bronze_tables",
+    bash_command="""
+    echo "Starting daily Bronze validation"
+    cd /opt/airflow/project
+    python ingestion/validators/validate_daily_bronze.py
+    echo "Finished daily Bronze validation"
+    """,
+    )
+
     dbt_deps = BashOperator(
         task_id="dbt_deps",
         bash_command="""
@@ -98,6 +108,7 @@ with DAG(
         check_landing_directory
         >> generate_daily_claims
         >> load_daily_bronze
+        >> validate_daily_bronze
         >> dbt_deps
         >> dbt_run
         >> dbt_test
