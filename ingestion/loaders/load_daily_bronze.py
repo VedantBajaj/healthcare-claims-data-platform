@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import uuid
 from datetime import datetime
 from pathlib import Path
 
@@ -98,8 +99,76 @@ def truncate_daily_tables(engine) -> None:
 
     logger.info("Daily Bronze tables truncated successfully")
 
+def write_audit_log(
+    engine,
+    pipeline_name: str,
+    run_id: str,
+    feed_date: str | None,
+    source_file_name: str | None,
+    target_table: str | None,
+    rows_loaded: int,
+    status: str,
+    error_message: str | None,
+    started_at: datetime,
+    ended_at: datetime,
+) -> None:
+    sql = text(
+        """
+        INSERT INTO audit.pipeline_run_log (
+            pipeline_name,
+            run_id,
+            feed_date,
+            source_file_name,
+            target_table,
+            rows_loaded,
+            status,
+            error_message,
+            started_at,
+            ended_at
+        )
+        VALUES (
+            :pipeline_name,
+            :run_id,
+            :feed_date,
+            :source_file_name,
+            :target_table,
+            :rows_loaded,
+            :status,
+            :error_message,
+            :started_at,
+            :ended_at
+        );
+        """
+    )
 
-def load_daily_file(file_path: Path, engine) -> None:
+    with engine.begin() as conn:
+        conn.execute(
+            sql,
+            {
+                "pipeline_name": pipeline_name,
+                "run_id": run_id,
+                "feed_date": feed_date,
+                "source_file_name": source_file_name,
+                "target_table": target_table,
+                "rows_loaded": rows_loaded,
+                "status": status,
+                "error_message": error_message,
+                "started_at": started_at,
+                "ended_at": ended_at,
+            },
+        )
+
+    logger.info(
+        "Audit log written | pipeline=%s run_id=%s file=%s table=%s rows=%s status=%s",
+        pipeline_name,
+        run_id,
+        source_file_name,
+        target_table,
+        rows_loaded,
+        status,
+    )
+
+def load_daily_file(file_path: Path, engine, run_id: str) -> None:
     table_name = identify_target_table(file_path.name)
 
     if table_name is None:
@@ -107,55 +176,96 @@ def load_daily_file(file_path: Path, engine) -> None:
         return
 
     feed_date = extract_feed_date(file_path.name)
+    target_table = f"bronze.{table_name}"
+    started_at = datetime.now()
+    total_rows = 0
 
     logger.info("=" * 80)
     logger.info("Starting daily Bronze load")
+    logger.info("Run ID: %s", run_id)
     logger.info("Source file: %s", file_path.name)
-    logger.info("Target table: bronze.%s", table_name)
+    logger.info("Target table: %s", target_table)
     logger.info("Feed date: %s", feed_date)
 
-    total_rows = 0
+    try:
+        for chunk_number, chunk in enumerate(
+            pd.read_csv(file_path, chunksize=CHUNK_SIZE, dtype=str),
+            start=1,
+        ):
+            logger.info(
+                "Processing chunk=%s file=%s rows=%s",
+                chunk_number,
+                file_path.name,
+                len(chunk),
+            )
 
-    for chunk_number, chunk in enumerate(
-        pd.read_csv(file_path, chunksize=CHUNK_SIZE, dtype=str),
-        start=1,
-    ):
+            chunk = clean_column_names(chunk)
+            chunk["feed_date"] = feed_date
+            chunk["source_file_name"] = file_path.name
+
+            chunk.to_sql(
+                name=table_name,
+                con=engine,
+                schema="bronze",
+                if_exists="append",
+                index=False,
+                method="multi",
+                chunksize=5_000,
+            )
+
+            total_rows += len(chunk)
+
+            logger.info(
+                "Loaded chunk=%s total_rows_loaded=%s",
+                chunk_number,
+                total_rows,
+            )
+
+        ended_at = datetime.now()
+
+        write_audit_log(
+            engine=engine,
+            pipeline_name="daily_claims_bronze_load",
+            run_id=run_id,
+            feed_date=feed_date,
+            source_file_name=file_path.name,
+            target_table=target_table,
+            rows_loaded=total_rows,
+            status="success",
+            error_message=None,
+            started_at=started_at,
+            ended_at=ended_at,
+        )
+
         logger.info(
-            "Processing chunk=%s file=%s rows=%s",
-            chunk_number,
+            "Finished daily load file=%s table=%s total_rows=%s",
             file_path.name,
-            len(chunk),
-        )
-
-        chunk = clean_column_names(chunk)
-        chunk["feed_date"] = feed_date
-        chunk["source_file_name"] = file_path.name
-
-        chunk.to_sql(
-            name=table_name,
-            con=engine,
-            schema="bronze",
-            if_exists="append",
-            index=False,
-            method="multi",
-            chunksize=5_000,
-        )
-
-        total_rows += len(chunk)
-
-        logger.info(
-            "Loaded chunk=%s total_rows_loaded=%s",
-            chunk_number,
+            target_table,
             total_rows,
         )
 
-    logger.info(
-        "Finished daily load file=%s table=bronze.%s total_rows=%s",
-        file_path.name,
-        table_name,
-        total_rows,
-    )
-    logger.info("=" * 80)
+    except Exception as exc:
+        ended_at = datetime.now()
+
+        write_audit_log(
+            engine=engine,
+            pipeline_name="daily_claims_bronze_load",
+            run_id=run_id,
+            feed_date=feed_date,
+            source_file_name=file_path.name,
+            target_table=target_table,
+            rows_loaded=total_rows,
+            status="failed",
+            error_message=str(exc),
+            started_at=started_at,
+            ended_at=ended_at,
+        )
+
+        logger.exception("Failed daily load for file=%s", file_path.name)
+        raise
+
+    finally:
+        logger.info("=" * 80)
 
 
 def main() -> None:
@@ -176,10 +286,13 @@ def main() -> None:
 
     engine = get_engine()
 
+    run_id = str(uuid.uuid4())
+    logger.info("Daily Bronze load run_id=%s", run_id)
+
     truncate_daily_tables(engine)
 
     for file_path in latest_daily_files:
-        load_daily_file(file_path, engine)
+        load_daily_file(file_path, engine, run_id)
 
     logger.info("Daily claims Bronze ingestion completed successfully")
 
