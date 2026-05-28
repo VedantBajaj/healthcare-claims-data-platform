@@ -4,6 +4,21 @@ A production-style healthcare claims data platform built with **Python, PostgreS
 
 This project shows how healthcare claims data can move from raw CSV files into trusted analytics tables, automated pipelines, audit logs, and dashboards.
 
+## Project Demo
+
+### dbt Lineage and Documentation
+
+![dbt Docs Demo](docs/demo/dbt_docs_demo.gif)
+
+### Airflow Orchestration
+
+![Airflow DAG Demo](docs/demo/airflow_dag_demo.gif)
+
+### Grafana Monitoring Dashboard
+
+![Grafana Dashboard Demo](docs/demo/grafana_dashboard_demo.gif)
+
+
 ## What This Project Does
 
 This platform processes CMS SynPUF healthcare claims data through a modern data engineering workflow.
