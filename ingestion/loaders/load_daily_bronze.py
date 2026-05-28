@@ -63,6 +63,25 @@ def extract_feed_date(file_name: str):
     year, month, day = match.groups()
     return f"{year}-{month}-{day}"
 
+def get_latest_daily_files(daily_files: list[Path]) -> list[Path]:
+    files_by_feed_date = {}
+
+    for file_path in daily_files:
+        feed_date = extract_feed_date(file_path.name)
+        files_by_feed_date.setdefault(feed_date, []).append(file_path)
+
+    latest_feed_date = max(files_by_feed_date.keys())
+
+    latest_files = files_by_feed_date[latest_feed_date]
+
+    logger.info("Latest feed date detected: %s", latest_feed_date)
+    logger.info("Files selected for latest feed date: %s", len(latest_files))
+
+    for file_path in latest_files:
+        logger.info("Selected latest feed file: %s", file_path.name)
+
+    return sorted(latest_files)
+
 
 def truncate_daily_tables(engine) -> None:
     tables = [
@@ -143,24 +162,23 @@ def main() -> None:
     logger.info("Starting daily claims Bronze ingestion")
     logger.info("Looking for daily files in: %s", DATA_DIR)
 
-    if not DATA_DIR.exists():
-        raise FileNotFoundError(f"Daily claims directory does not exist: {DATA_DIR}")
-
     daily_files = sorted(DATA_DIR.glob("daily_*_claims_*.csv"))
 
     if not daily_files:
         raise FileNotFoundError(f"No daily claims files found in {DATA_DIR}")
 
-    logger.info("Found %s daily claim files", len(daily_files))
+    logger.info("Found %s total daily claim files", len(daily_files))
 
     for file_path in daily_files:
         logger.info("Discovered daily file: %s", file_path.name)
+
+    latest_daily_files = get_latest_daily_files(daily_files)
 
     engine = get_engine()
 
     truncate_daily_tables(engine)
 
-    for file_path in daily_files:
+    for file_path in latest_daily_files:
         load_daily_file(file_path, engine)
 
     logger.info("Daily claims Bronze ingestion completed successfully")
